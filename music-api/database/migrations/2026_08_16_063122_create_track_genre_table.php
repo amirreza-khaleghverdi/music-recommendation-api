@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('track_genres', function (Blueprint $table) {
+        Schema::create('track_genre', function (Blueprint $table) {
             $table->foreignId('track_id')->constrained()->cascadeOnDelete();
             $table->foreignId('genre_id')->constrained()->cascadeOnDelete();
             $table->primary(['track_id','genre_id']);
+
+            $table->index('genre_id', 'idx_track_genres_genre');
         });
     }
 

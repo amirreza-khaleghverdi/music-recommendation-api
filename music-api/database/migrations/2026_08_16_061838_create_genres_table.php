@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name', 100)->unique();
             $table->foreignId('parent_genre_id')->nullable()->constrained('genres')->cascadeOnDelete();
 
+            $table->index('parent_genre_id', 'idx_genres_parent');
         });
     }
 
