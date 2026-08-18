@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('album_artist', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->foreignId('album_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('artist_id')->constrained()->cascadeOnDelete();
+            $table->enum('role', ['primary', 'featured', 'various'])->default('primary');
+            $table->primary(['album_id', 'artist_id', 'role']);
+
+            $table->index('artist_id', 'idx_album_artists_artist');
         });
     }
 
