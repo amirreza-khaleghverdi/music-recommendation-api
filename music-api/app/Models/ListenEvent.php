@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TrackAudioFeatures extends Model
+class ListenEvent extends Model
 {
-    /** @use HasFactory<\Database\Factories\TrackAudioFeaturesFactory> */
+    /** @use HasFactory<\Database\Factories\ListenEventsFactory> */
     use HasFactory;
 }
