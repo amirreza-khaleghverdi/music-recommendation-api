@@ -27,11 +27,13 @@ class Artist extends Model
 
     public function tracks() : BelongsToMany {
         return $this->belongsToMany(Track::class, 'track_artist')
+        ->using(TrackArtist::class)
         ->withPivot('role');
     }
 
     public function albums() : BelongsToMany {
         return $this->belongsToMany(Album::class, 'album_artist')
+        ->using(AlbumArtist::class)
         ->withPivot('role');
     }
 }
