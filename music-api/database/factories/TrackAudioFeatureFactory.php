@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\ArtistFollows;
+use App\Models\TrackAudioFeatures;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<ArtistFollows>
+ * @extends Factory<TrackAudioFeature>
  */
-class ArtistFollowsFactory extends Factory
+class TrackAudioFeatureFactory extends Factory
 {
     /**
      * Define the model's default state.
