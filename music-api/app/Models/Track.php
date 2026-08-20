@@ -39,8 +39,9 @@ class Track extends Model
 
     public function artists(): BelongsToMany{
         return $this->belongsToMany(Artist::class, 'track_artist')
-            ->withPivot('role'); 
-        }
+            ->using(TrackArtist::class)
+            ->withPivot('role');
+    }
 
     public function genres(): BelongsToMany{
         return $this->belongsToMany(Genre::class, 'track_genre');
