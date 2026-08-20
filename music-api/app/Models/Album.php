@@ -26,6 +26,7 @@ class Album extends Model
 
     public function artists() : BelongsToMany {
         return $this->belongsToMany(Artist::class, 'album_artist')
+        ->using(AlbumArtist::class)
         ->withPivot('role');
     }
 
