@@ -19,7 +19,12 @@ class GenreFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'=> fake()->name()
+            'name' => fake()->unique()->randomElement([
+                'Rock', 'Pop', 'Hip Hop', 'Jazz', 'Classical', 'Electronic',
+                'Country', 'R&B', 'Reggae', 'Blues', 'Folk', 'Metal',
+                'Punk', 'Soul', 'Funk', 'Indie', 'Ambient', 'House',
+                'Techno', 'Dubstep', 'Latin', 'K-Pop', 'Gospel', 'Alternative',
+            ]),
         ];
     }
 
