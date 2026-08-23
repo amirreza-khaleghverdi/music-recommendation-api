@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Genre;
+use App\Models\Track;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,18 @@ class GenreFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name'=> fake()->name()
         ];
+    }
+
+    public function name(string $name) : static {
+        return $this->state(fn() => ['name'=> $name]);
+    }
+
+    public function withTrack(?Track $track=null) : static {
+        return $this->afterCreating(function (Genre $genre) use ($track) {
+            $track ?? track::factory()->create()->genres()->attach($genre->id);
+        }
+    );
     }
 }
