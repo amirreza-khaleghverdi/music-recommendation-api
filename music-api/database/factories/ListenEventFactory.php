@@ -34,13 +34,6 @@ class ListenEventFactory extends Factory
         ];
     }
 
-    /**
-     * Real listening behavior is bimodal, not uniform: most plays either
-     * finish (or nearly finish) the track, or get skipped early. A flat
-     * random number between 0 and duration would misrepresent this,
-     * which matters directly for this project since ms_played is a core
-     * recommendation signal (completion rate as an implicit rating).
-     */
     private function realisticMsPlayed(int $durationMs): int
     {
         // 70% of plays: mostly complete (70-100% of track)

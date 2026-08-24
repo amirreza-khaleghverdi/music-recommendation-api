@@ -45,11 +45,6 @@ class PlaylistFactory extends Factory
         return $this->state(fn () => ['is_public' => true]);
     }
 
-    /**
-     * Attaches tracks in order, assigning position sequentially — position
-     * is a required, non-nullable column on playlist_track, so it can't
-     * be left out of attach().
-     */
     public function withTracks(array $tracks = []): static
     {
         return $this->afterCreating(function (Playlist $playlist) use ($tracks) {
