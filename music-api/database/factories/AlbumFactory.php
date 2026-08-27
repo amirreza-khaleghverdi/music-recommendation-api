@@ -28,7 +28,7 @@ class AlbumFactory extends Factory
                 'compilation',
             ]),
 
-            'release_date' => fake()->dateTimeBetween('-60 years', 'now')->format('y-m-d'),
+            'release_date' => fake()->dateTimeBetween('-60 years', 'now')->format('Y-m-d'),
             'cover_image_url'=> fake()->boolean(85)
             ? 'https://picsum.photos/seed/' . fake()->uuid() . '/500/500'
             : null,
@@ -52,7 +52,7 @@ class AlbumFactory extends Factory
     }
 
     public function ep() : static{
-        return $this->state(fn ()=> ['album_type' => 'single']);
+        return $this->state(fn ()=> ['album_type' => 'ep']);
     }
 
     public function compilation() : static {

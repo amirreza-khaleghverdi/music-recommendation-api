@@ -6,7 +6,6 @@ use App\Models\Album;
 use App\Models\AlbumArtist;
 use App\Models\Artist;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use PHPUnit\Runner\TestRunHistory\TestRunHistory;
 
 /**
  * @extends Factory<AlbumArtist>
@@ -23,7 +22,7 @@ class AlbumArtistFactory extends Factory
         return [
             'album_id' => Album::factory(),
             'artist_id' => Artist::factory(),
-            'role' => ['primary', 'featured', 'various'] 
+            'role' => fake()->randomElement(['primary', 'featured', 'various'])
         ];
     }
 
