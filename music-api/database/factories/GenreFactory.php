@@ -32,10 +32,9 @@ class GenreFactory extends Factory
         return $this->state(fn() => ['name'=> $name]);
     }
 
-    public function withTrack(?Track $track=null) : static {
+    public function withTrack(?Track $track = null): static {
         return $this->afterCreating(function (Genre $genre) use ($track) {
-            $track ?? track::factory()->create()->genres()->attach($genre->id);
-        }
-    );
+            ($track ?? Track::factory()->create())->genres()->attach($genre->id);
+        });
     }
 }

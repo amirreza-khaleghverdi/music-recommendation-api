@@ -2,14 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\ListenEvents;
+use App\Models\ListenEvent;
 use App\Models\Track;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use PhpParser\Node\Expr\AssignOp\Mul;
 
 /**
- * @extends Factory<ListenEvents>
+ * @extends Factory<ListenEvent>
  */
 class ListenEventFactory extends Factory
 {
@@ -24,7 +23,7 @@ class ListenEventFactory extends Factory
 
         return [
             'user_id' => User::factory(),
-            'track_ic' => $track->id,
+            'track_id' => $track->id,
             'played_at' => fake()->dateTimeBetween('-2 years', 'now'),
             'ms_played' => $this->realisticMsPlayed($track->duration_ms),
             'context_type' => null,
