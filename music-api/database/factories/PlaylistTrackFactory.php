@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Playlist;
 use App\Models\PlaylistTrack;
+use App\Models\Track;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +20,9 @@ class PlaylistTrackFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'playlist_id' => Playlist::factory(),
+            'track_id' => Track::factory(),
+            'position' => fake()->numberBetween(1, 50)
         ];
     }
 }

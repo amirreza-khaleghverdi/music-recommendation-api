@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Track;
 use App\Models\TrackLike;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +20,9 @@ class TrackLikeFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'user_id' => User::factory(),
+            'track_id' => Track::factory(),
+            'liked_at' => fake()->dateTimeBetween('-2 years', 'now'),
         ];
     }
 }
