@@ -4,13 +4,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\AlbumController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\GenreController;
+use App\Http\Controllers\Api\V1\PlaylistController;
+use App\Http\Controllers\Api\V1\TrackController;
 
 // ...
 
 Route::prefix('v1')
-    ->name('Api.v1')
+    ->name('api.v1.')
     ->group( function () {
         
+        //...auth...//
         Route::controller(AuthController::class)
         ->prefix('auth')
         ->name('auth.')
@@ -20,7 +24,7 @@ Route::prefix('v1')
             ->middleware('throttle:6,1')
             ->name('register');
 
-            Route::post('login', 'login')
+            Route::post('/login', 'login')
             ->middleware('throttle:5,1')
             ->name('loign');
 
@@ -39,21 +43,22 @@ Route::prefix('v1')
             });
         });
 
+        //...artist...//
         Route::controller(ArtistController::class)
-        ->prefix('artists')
+        ->prefix('/artists')
         ->name('artists.')
         ->group(function () {
            
             Route::get('/', 'index')
             ->name('index');
 
-            Route::get('{artist}', 'show')
+            Route::get('/{artist}', 'show')
             ->name('show');
 
-            Route::get('{artist}/albums', 'albums')
+            Route::get('/{artist}/albums', 'albums')
             ->name('albums');
 
-            Route::get('{artist}/tracks', 'tracks')
+            Route::get('/{artist}/tracks', 'tracks')
             ->name('tracks');
 
             Route::middleware('auth:sanctum')->group(function() {
@@ -61,20 +66,21 @@ Route::prefix('v1')
                 Route::post('/', 'store')
                 ->name('store');
 
-                Route::patch('{arits}', 'patch')
+                Route::patch('/{artist}', 'patch')
                 ->name('update');
 
-                Route::delete('artists/{artist}')
-                ->name('delete');
+                Route::delete('/{artist}', 'destroy')
+                ->name('destroy');
 
-                Route::post('{artists}/follow', 'follow')
+                Route::post('/{artist}/follow', 'follow')
                 ->name('follow');
 
-                Route::delete('{artist}/follow', 'unfollow')
+                Route::delete('/{artist}/follow', 'unfollow')
                 ->name('follow');
             });
         });
 
+        //...album...//
         Route::controller(AlbumController::class)
         ->prefix('/albums')
         ->name('albums.')
@@ -83,22 +89,92 @@ Route::prefix('v1')
             Route::get('/', 'index')
             ->name('index');
 
-            Route::get('{album}', 'show')
+            Route::get('/{album}', 'show')
             ->name('show');
 
-            Route::get('{album}/tracks', 'tracks')
+            Route::get('/{album}/tracks', 'tracks')
             ->name('tracks');
+
+            Route::get('/{album}/artists', 'artists')
+            ->name('artists');
 
             Route::middleware('auth:sanctum')->group(function() {
 
-                Route::post('/', 'create')
-                ->name('create');
+                Route::post('/', 'store')
+                ->name('store');
 
                 Route::patch('/{album}', 'update')
                 ->name('update');
 
-                Route::delete('/{album}', 'delete')
-                ->name('delete');
+                Route::delete('/{album}', 'destroy')
+                ->name('destroy');
             });
+        });
+
+        //...track...//
+        Route::controller(TrackController::class)
+        ->prefix('/tracks')
+        ->name('tracks.')
+        ->group(function() {
+
+            Route::get('/', 'index')
+            ->name('index');
+
+            Route::get('/{track}', 'show')
+            ->name('show');
+
+            Route::get('/{track}/audio-feature', 'audioFeatures')
+            ->name('audio-feature');
+
+
+            Route::middleware('auth:sanctum')->group(function() {
+
+                Route::post('/', 'store')
+                ->name('store');
+
+
+                Route::patch('/{track}', 'update')
+                ->name('update');
+
+
+                Route::delete('/{track}', 'destroy')
+                ->name('destroy');
+
+                Route::post('/{track}/like', 'like')
+                ->name('like');
+
+                Route::delete('/{track}/like', 'unlike')
+                ->name('unlike');
+
+                Route::post('/{}/listen', 'ListenEventController')
+                ->name('listen-event-controller');
+            });
+
+        });
+
+        //...genre...//
+        Route::controller(GenreController::class)
+        ->prefix('/genres')
+        ->name('genre.')
+        ->group(function() {
+
+            Route::get('/', 'index')
+            ->name('index');
+
+            Route::get('/{genre}', 'show')
+            ->name('show');
+
+            Route::get('/{genre}/tracks', 'tracks')
+            ->name('tracks');
+        });
+
+        //...playlist...//
+        Route::controller(PlaylistController::class)
+        ->prefix('/playlists')
+        ->name('playlist.')
+        ->group(function() {
+
+
+                
         });
     });
