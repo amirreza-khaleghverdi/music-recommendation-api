@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\AlbumController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\GenreController;
 use App\Http\Controllers\Api\V1\PlaylistController;
+use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\TrackController;
 
 // ...
@@ -34,12 +36,6 @@ Route::prefix('v1')
                 Route::post('/logout', 'logout')
                 ->name('logout');
 
-                Route::get('/me', 'me')
-                ->name('me');
-
-                Route::patch("/me", 'me')
-                ->name('me');
-
             });
         });
 
@@ -59,24 +55,21 @@ Route::prefix('v1')
             ->name('albums');
 
             Route::get('/{artist}/tracks', 'tracks')
-            ->name('tracks');
+            ->name('tracks'); 
 
             Route::middleware('auth:sanctum')->group(function() {
 
                 Route::post('/', 'store')
+                ->middleware('can:create')
                 ->name('store');
 
                 Route::patch('/{artist}', 'patch')
+                ->middleware('can:update')
                 ->name('update');
 
                 Route::delete('/{artist}', 'destroy')
+                ->middleware('can:delete')
                 ->name('destroy');
-
-                Route::post('/{artist}/follow', 'follow')
-                ->name('follow');
-
-                Route::delete('/{artist}/follow', 'unfollow')
-                ->name('follow');
             });
         });
 
@@ -101,13 +94,24 @@ Route::prefix('v1')
             Route::middleware('auth:sanctum')->group(function() {
 
                 Route::post('/', 'store')
+                ->middleware('can:create')
                 ->name('store');
 
                 Route::patch('/{album}', 'update')
+                ->middleware('can:update')
                 ->name('update');
 
                 Route::delete('/{album}', 'destroy')
+                ->middleware('can:delete')
                 ->name('destroy');
+
+                Route::post('/{album}/artists', 'albumArtists')
+                ->middleware('can:update')
+                ->name('album_artists');
+
+                Route::delete('{album}/artists/{artist}', 'removeArtist')
+                ->middleware('can:update')
+                ->name('remove_artist');
             });
         });
 
@@ -130,24 +134,30 @@ Route::prefix('v1')
             Route::middleware('auth:sanctum')->group(function() {
 
                 Route::post('/', 'store')
+                ->middleware('can:create')
                 ->name('store');
 
 
                 Route::patch('/{track}', 'update')
+                ->middleware('can:update')
                 ->name('update');
 
 
                 Route::delete('/{track}', 'destroy')
+                ->middleware('can:delete')
                 ->name('destroy');
 
-                Route::post('/{track}/like', 'like')
-                ->name('like');
+                Route::post('/{track}/listen', '')
+                ->middleware('can:create', 'throttle:60,1')
+                ->name('');
 
-                Route::delete('/{track}/like', 'unlike')
-                ->name('unlike');
+                Route::post('/{track}/artists', '')
+                ->middleware('can:update')
+                ->name('');
 
-                Route::post('/{}/listen', 'ListenEventController')
-                ->name('listen-event-controller');
+                Route::delete('/{track}/artists/{artist}', '')
+                ->middleware('can:update')
+                ->name('');
             });
 
         });
@@ -168,13 +178,92 @@ Route::prefix('v1')
             ->name('tracks');
         });
 
+        //...me...//
+        Route::controller(ProfileController::class)
+        ->prefix('/me')
+        ->name('me.')
+        ->group(function() {
+
+            Route::middleware('auth:sanctum')->group(function() {
+
+            Route::get('/', 'show')
+            ->name('show');
+
+            Route::patch('/', 'update')
+            ->name('update');
+
+            Route::get('/liked-tracks', 'likedTracks')
+            ->name('liked-tracks');
+
+            Route::post('/liked-tracks/{track}', '')
+            ->name('');
+
+            Route::delete('/liked-tracks/{track}', '')
+            ->name('');
+
+            Route::get('/followed-artists', '')
+            ->name('');
+
+            Route::post('/followed-artists/{artist}', '')
+            ->name('');
+
+            Route::delete('/followed-artists/{artist}', '')
+            ->name('');
+
+            Route::get('/listen-history', '')
+            ->name('');
+
+            Route::get('/playlists', '')
+            ->name('');
+            });
+        });
+
         //...playlist...//
         Route::controller(PlaylistController::class)
         ->prefix('/playlists')
         ->name('playlist.')
         ->group(function() {
+    
+            Route::get('/', 'index')
+            ->middleware('can:viewAny')
+            ->name('index');
 
+            Route::get('/{playlist}', 'show')
+            ->middleware('can:view')
+            ->name('show');
 
-                
+            Route::get('/{playlist}/tracks', 'tracks')
+            ->middleware('can:view')
+            ->name('tracks');
+
+            Route::middleware('auth:sanctum')->group(function() {
+
+                Route::post('/', 'store')
+                ->middleware('can:create')
+                ->name('store');
+
+                Route::post('/{playlist}', 'update')
+                ->middleware('can:update')
+                ->name('update');
+
+                Route::delete('/{playlist}', 'delete')
+                ->middleware('can:delete')
+                ->name('delete');
+
+                Route::post('/{playlist}/tracks', '')
+                ->middleware('can:update')
+                ->name('');
+
+                Route::delete('/{playlist}/tracks/{track}', '')
+                ->middleware('can:update')
+                ->name('');
+
+                Route::patch('/{playlist}/tracks/reorder', '')
+                ->middleware('can:update')
+                ->name('');
+            });
         });
+
+        Route::get('/search', [SearchController::class, 'search'])
+        ->name('search');
     });
