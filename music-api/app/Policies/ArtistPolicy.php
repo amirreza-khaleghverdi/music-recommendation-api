@@ -29,7 +29,7 @@ class ArtistPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return in_array($user->role, ['admin', 'curator']);
     }
 
     /**
@@ -37,7 +37,7 @@ class ArtistPolicy
      */
     public function update(User $user, Artist $artist): bool
     {
-        return false;
+        return in_array($user->role, ['admin', 'curator']);
     }
 
     /**
@@ -45,22 +45,6 @@ class ArtistPolicy
      */
     public function delete(User $user, Artist $artist): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Artist $artist): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Artist $artist): bool
-    {
-        return false;
+        return $user->role === 'admin';
     }
 }
