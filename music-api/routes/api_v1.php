@@ -107,11 +107,11 @@ Route::prefix('v1')
 
                 Route::post('/{album}/artists', 'attachArtist')
                 ->middleware('can:update,album')
-                ->name('attach.artist');
+                ->name('artist.attach');
 
                 Route::delete('/{album}/artists/{artist}', 'detachArtist')
                 ->middleware('can:update,album')
-                ->name('detach.artist');
+                ->name('artist.detach');
             });
         });
 
@@ -193,7 +193,7 @@ Route::prefix('v1')
             ->name('update');
 
             Route::get('/liked-tracks', 'likedTracks')
-            ->name('liked-tracks');
+            ->name('liked-tracks.index');
 
             Route::post('/liked-tracks/{track}', 'likeTrack')
             ->name('liked-tracks.attach');
@@ -213,7 +213,7 @@ Route::prefix('v1')
             Route::get('/listen-history', 'listenHistory')
             ->name('listen-history');
 
-            Route::get('/playlists', 'playlist')
+            Route::get('/playlists', 'playlists')
             ->name('playlists');
             });
         });
@@ -248,7 +248,7 @@ Route::prefix('v1')
 
                 Route::delete('/{playlist}', 'destroy')
                 ->middleware('can:delete,playlist')
-                ->name('delete');
+                ->name('destroy');
 
                 Route::post('/{playlist}/tracks', 'addTrack')
                 ->middleware('can:update,playlist')
