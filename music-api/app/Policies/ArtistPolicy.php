@@ -4,47 +4,32 @@ namespace App\Policies;
 
 use App\Models\Artist;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Models\UserRole;
 
 class ArtistPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Artist $artist): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'curator']);
+        return in_array($user->role, [UserRole::Admin, UserRole::Curator], true);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Artist $artist): bool
     {
-        return in_array($user->role, ['admin', 'curator']);
+        return in_array($user->role, [UserRole::Admin, UserRole::Curator], true);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Artist $artist): bool
     {
-        return $user->role === 'admin';
+        return $user->role === UserRole::Admin;
     }
 }
