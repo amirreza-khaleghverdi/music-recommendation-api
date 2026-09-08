@@ -7,13 +7,21 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TrackResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'track_number' => $this->track_number,
+            'disc_number' => $this->disc_number,
+            'duration_ms' => $this->duration_ms,
+            'isrc' => $this->isrc,
+            'explicit' => $this->explicit,
+            'external_ids' => $this->external_ids,
+            'album' => $this->whenLoaded('album', fn () => new AlbumResource($this->album)),
+            'artists' => ArtistResource::collection($this->whenLoaded('artists')),
+            'genres' => GenreResource::collection($this->whenLoaded('genres')),
+            'audio_features' => $this->whenLoaded('audio_features', fn() => new AlbumResource($this->audioFeature))
+        ];
     }
 }
