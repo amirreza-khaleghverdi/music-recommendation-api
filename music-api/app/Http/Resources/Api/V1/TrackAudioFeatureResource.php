@@ -14,6 +14,20 @@ class TrackAudioFeatureResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'track' => $this->whenLoaded('track', fn() => new TrackResource($this->track) ),
+            'tempo_bpm' => $this->tempo_bpm,
+            'energy' => $this->energy,
+            'danceability' => $this->danceability,
+            'valence' => $this->valence,
+            'acousticness' => $this->acousticness,
+            'instrumentalness' => $this->instrumentalness,
+            'speechiness' => $this->speechiness,
+            'liveness' => $this->liveness,
+            'loudness_db' => $this->loudness_db,
+            'key_signature' => $this->key_signature,
+            'mode' => $this->mode,
+            'time_signature' => $this->time_signature
+        ];
     }
 }
