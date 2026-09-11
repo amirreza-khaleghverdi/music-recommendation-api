@@ -20,10 +20,9 @@ class ListenEventResource extends JsonResource
             'ms_played' => $this->ms_played,
             'context_type' => $this->context_type,
             'context_id' => $this->context_id,
+            'device_type' => $this->device_type,
             'session_id' => $this->session_id,
-            
-            'parent_genre' => new GenreResource($this->whenLoaded('parent')),
-            'children_genre' => GenreResource::collection($this->whenLoaded('children'))
+            'track' => $this->whenLoaded('track', fn() => new TrackResource($this->track))
         ];
     }
 }

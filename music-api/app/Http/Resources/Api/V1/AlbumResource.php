@@ -14,7 +14,7 @@ class AlbumResource extends JsonResource
             'title' => $this->title,
             'album_type' =>$this->album_type,
             'release_date' => $this->release_date,
-            'cover_image' => $this->cover_image_url,
+            'cover_image_url' => $this->cover_image_url,
             'tracks' => TrackResource::collection($this->whenLoaded('tracks')),
             'artists' => ArtistResource::collection($this->whenLoaded('artists'))
         ];

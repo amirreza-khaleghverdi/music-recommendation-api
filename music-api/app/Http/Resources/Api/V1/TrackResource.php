@@ -21,7 +21,7 @@ class TrackResource extends JsonResource
             'album' => $this->whenLoaded('album', fn () => new AlbumResource($this->album)),
             'artists' => ArtistResource::collection($this->whenLoaded('artists')),
             'genres' => GenreResource::collection($this->whenLoaded('genres')),
-            'audio_features' => $this->whenLoaded('audio_features', fn() => new AlbumResource($this->audioFeature))
+            'audio_features' => $this->whenLoaded('audioFeatures', fn() => new TrackAudioFeatureResource($this->audioFeatures))
         ];
     }
 }

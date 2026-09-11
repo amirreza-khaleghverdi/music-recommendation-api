@@ -17,6 +17,7 @@ class ArtistResource extends JsonResource
             'formed_year' => $this->formed_year,
             'image_url' => $this->image_url,
             'external_ids' => $this->external_ids,
+            'albums' => AlbumResource::collection($this->whenLoaded('albums')),
         ];
     }
 }
