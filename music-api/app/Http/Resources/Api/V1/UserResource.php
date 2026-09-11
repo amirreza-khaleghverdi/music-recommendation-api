@@ -7,13 +7,17 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'username' => $this->username,
+            'email' => $this->when($request->user()?->id === $this->id, $this->email),
+            'display_name' => $this->display_name,
+            'role' => $this->role,
+            'playlists' => PlaylistResource::collection($this->whenLoaded('playlists')),
+            'liked_tracks' => TrackResource::collection($this->whenLoaded('likedTracks')),
+            'followed_artists' => ArtistResource::collection($this->whenLoaded('followedArtists'))
+        ];
     }
 }
