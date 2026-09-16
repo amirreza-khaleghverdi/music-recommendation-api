@@ -19,7 +19,7 @@ class StorePlaylistRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:150',
-            Rule::unique('playlist')->where(
+            Rule::unique('playlists')->where(
                 fn ($query) => $query->where('user_id', $this->user()->id)
             )],
             'description' => ['nullable', 'string'],

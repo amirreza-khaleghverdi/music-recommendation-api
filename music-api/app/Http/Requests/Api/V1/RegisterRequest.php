@@ -20,7 +20,7 @@ class RegisterRequest extends FormRequest
             'username' => ['required', 'string', 'min:4', 'max:50', Rule::unique('users', 'username')],
             'email' => ['required', 'email', Rule::unique('users', 'email')],
             'password' => ['required', 'confirmed', Password::defaults()],
-            'display_name' => ['nullable', 'string', 'min:4', 'max:50']
+            'display_name' => ['nullable', 'string', 'min:4', 'max:100']
         ];
     }
 

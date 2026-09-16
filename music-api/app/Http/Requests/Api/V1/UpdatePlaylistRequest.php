@@ -17,10 +17,10 @@ class UpdatePlaylistRequest extends FormRequest
     {
         return [
             'title' => ['sometimes', 'string', 'max:150',
-            Rule::unique('playlists')->where(
-                fn ($query) => $query->where('user_id', $this->user()->id)
-                ->ignore($this->route('playlist'))
-            )],
+            Rule::unique('playlists')
+            ->where(fn ($query) => $query->where('user_id', $this->user()->id))
+            ->ignore($this->route('playlist')),
+            ],
             'description' => ['sometimes', 'nullable', 'string'],
             'is_public' => ['sometimes', 'nullable', 'boolean'],
             'cover_image' => ['sometimes', 'nullable', 'url', 'max:500']
