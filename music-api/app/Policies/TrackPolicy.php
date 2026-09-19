@@ -8,12 +8,12 @@ use App\Models\UserRole;
 
 class TrackPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
         return true;
     }
 
-    public function view(User $user, Track $track): bool
+    public function view(?User $user, Track $track): bool
     {
         return true;
     }
