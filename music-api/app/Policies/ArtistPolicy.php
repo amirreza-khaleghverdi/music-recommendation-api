@@ -8,12 +8,12 @@ use App\Models\UserRole;
 
 class ArtistPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
         return true;
     }
 
-    public function view(User $user, Artist $artist): bool
+    public function view(?User $user, Artist $artist): bool
     {
         return true;
     }
