@@ -192,6 +192,10 @@ Route::prefix('v1')
             Route::patch('/', 'update')
             ->name('update');
 
+            Route::patch('/password', 'updatePassword')
+            ->middleware('throttle:5,1')
+            ->name('Password.update');
+
             Route::get('/liked-tracks', 'likedTracks')
             ->name('liked-tracks.index');
 

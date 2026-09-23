@@ -4,26 +4,22 @@ namespace App\Http\Requests\Api\V1;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateAlbumRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->can('update', $this->route('album')) ?? false;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'title' => ['sometimes', 'string', 'max:200'],
+            'album_type' => ['sometimes', Rule::in(['album', 'single', 'ep', 'compilation'])],
+            'release_date' => ['sometimes', 'nullable', 'date'],
+            'cover_image_url' => ['sometimes', 'nullable', 'url', 'max:500']
         ];
     }
 }
