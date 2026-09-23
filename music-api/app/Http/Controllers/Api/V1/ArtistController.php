@@ -6,62 +6,64 @@ use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use App\Http\Requests\Api\V1\StoreArtistRequest;
 use App\Http\Requests\Api\V1\UpdateArtistRequest;
+use App\Http\Resources\Api\V1\AlbumResource;
+use App\Http\Resources\Api\V1\ArtistResource;
+use App\Http\Resources\Api\V1\TrackResource;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response as HttpResponse;
+use Laravel\Mcp\Request;
+use Illuminate\Http\Response;
 
 class ArtistController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    private const MAX_PER_PAGE = 100;
+
     public function index()
     {
-        //
+        
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreArtistRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Artist $artist)
     {
-        //
+        return new ArtistResource($artist->load('albums'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Artist $artist)
+    public function albums(Request $request, Artist $artist): AnonymousResourceCollection
     {
-        //
+        $albums = $artist->albums()->paginate($this->perPage($request));
+        return AlbumResource::collection($albums);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateArtistRequest $request, Artist $artist)
+    public function tracks(Request $request, Artist $artist): AnonymousResourceCollection
     {
-        //
+        $tracks = $artist->tracks()->paginate($this->perPage($request));
+        return TrackResource::collection($tracks);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Artist $artist)
+    public function store(StoreArtistRequest $request): JsonResponse
     {
-        //
+        $artist = Artist::create($request->validated());
+
+        return (new ArtistResource($artist))
+        ->response()
+        ->setStatusCode(HttpResponse::HTTP_CREATED);
+    }
+
+    public function update(UpdateArtistRequest $request, Artist $artist): ArtistResource
+    {
+        $artist = Artist::update($request->validated());
+        return new ArtistResource($artist);
+    }
+
+    public function destroy(Artist $artist): Response
+    {
+        $artist->delete();
+        return response()->noContent();
+    }
+
+    private function perPage(Request $request): int
+    {
+        return min($request->integer('per_page', 15), self::MAX_PER_PAGE);
     }
 }
