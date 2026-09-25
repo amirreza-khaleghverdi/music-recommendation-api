@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\AlbumController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\GenreController;
+use App\Http\Controllers\Api\V1\ListenEventController;
 use App\Http\Controllers\Api\V1\PlaylistController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\SearchController;
@@ -140,9 +141,9 @@ Route::prefix('v1')
                 ->middleware('can:delete,track')
                 ->name('destroy');
 
-                Route::post('/{track}/listen', 'listen')
-                ->middleware('throttle:60,1')
-                ->name('listen');
+                Route::post('/{track}/listen', [ListenEventController::class, 'store'])
+                ->middleware(['auth:sanctum', 'throttle:60,1'])
+                ->name('tracks.listen');
 
                 Route::post('/{track}/artists', 'attachArtist')
                 ->name('attach.artist');
