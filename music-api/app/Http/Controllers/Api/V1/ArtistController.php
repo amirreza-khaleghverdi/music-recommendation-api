@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use app\Http\Controllers\Concerns\PaginatesResults;
 use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use App\Http\Requests\Api\V1\StoreArtistRequest;
@@ -11,17 +12,27 @@ use App\Http\Resources\Api\V1\ArtistResource;
 use App\Http\Resources\Api\V1\TrackResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\Response as HttpResponse;
-use Laravel\Mcp\Request;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ArtistController extends Controller
 {
-    private const MAX_PER_PAGE = 100;
+    use PaginatesResults;
 
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
-        
+        $artists = Artist::query()
+        ->when(
+            $request->filled('search'),
+            fn ($query) => $query->search($request->string('search')->toString())
+        )
+        ->when(
+            $request->filled('country_code'),
+            fn ($query) => $query->where('country_code', $request->string('country_code'))
+        )
+        ->paginate($this->perPage($request));
+
+        return ArtistResource::collection($artists);
     }
 
     public function show(Artist $artist)
@@ -46,8 +57,8 @@ class ArtistController extends Controller
         $artist = Artist::create($request->validated());
 
         return (new ArtistResource($artist))
-        ->response()
-        ->setStatusCode(HttpResponse::HTTP_CREATED);
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function update(UpdateArtistRequest $request, Artist $artist): ArtistResource
@@ -60,10 +71,5 @@ class ArtistController extends Controller
     {
         $artist->delete();
         return response()->noContent();
-    }
-
-    private function perPage(Request $request): int
-    {
-        return min($request->integer('per_page', 15), self::MAX_PER_PAGE);
     }
 }
