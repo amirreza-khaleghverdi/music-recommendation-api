@@ -20,6 +20,8 @@ class AuthController extends Controller
         $user = User::create($request->validated());
         $token = $user->createToken('api')->plainTextToken;
 
+        $request->setUserResolver(fn () => $user);
+
         return (new UserResource($user))
             ->additional(['meta' => $token])
             ->response()
@@ -28,14 +30,15 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->validate('email'))->first();
+        $user = User::where('email', $request->validated('email'))->first();
         
-        if (! $user || ! Hash::check($request->validate('password'), $user->password)) {
+        if (! $user || ! Hash::check($request->validated('password'), $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['These credentials do not match our records.']
             ]);
         }
 
+        $request->setUserResolver(fn () =>$user);
         $token = $user->createToken('api')->plainTextToken;
 
         return (new UserResource($user))
