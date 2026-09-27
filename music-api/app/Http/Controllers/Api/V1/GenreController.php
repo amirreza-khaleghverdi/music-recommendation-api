@@ -2,65 +2,32 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Concerns\PaginatesResults;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\V1\GenreResource;
+use App\Http\Resources\Api\V1\TrackResource;
 use App\Models\Genre;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class GenreController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use PaginatesResults;
+
+    public function index(): AnonymousResourceCollection
     {
-        //
+        return GenreResource::collection(Genre::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(Genre $genre): GenreResource
     {
-        //
+        return new GenreResource($genre);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function tracks(Request $request, Genre $genre): AnonymousResourceCollection
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Genre $genre)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Genre $genre)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Genre $genre)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Genre $genre)
-    {
-        //
+        $tracks = $genre->tracks()->paginate($this->perPage($request));
+        return TrackResource::collection($tracks);
     }
 }
