@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use app\Http\Controllers\Concerns\PaginatesResults;
+use App\Http\Controllers\Concerns\PaginatesResults;
 use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use App\Http\Requests\Api\V1\StoreArtistRequest;
@@ -35,7 +35,7 @@ class ArtistController extends Controller
         return ArtistResource::collection($artists);
     }
 
-    public function show(Artist $artist)
+    public function show(Artist $artist): ArtistResource
     {
         return new ArtistResource($artist->load('albums'));
     }
@@ -63,7 +63,7 @@ class ArtistController extends Controller
 
     public function update(UpdateArtistRequest $request, Artist $artist): ArtistResource
     {
-        $artist = Artist::update($request->validated());
+        $artist->update($request->validated());
         return new ArtistResource($artist);
     }
 
