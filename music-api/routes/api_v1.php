@@ -257,5 +257,5 @@ Route::prefix('v1')
             });
         });
 
-        Route::get('/search', SearchController::class)->name('search');
+        Route::get('/search', SearchController::class)->middleware('throttle:30,1')->name('search');
     });
