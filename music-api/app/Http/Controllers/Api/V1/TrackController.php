@@ -11,6 +11,7 @@ use App\Http\Requests\Api\V1\UpdateTrackRequest;
 use App\Http\Resources\Api\V1\TrackAudioFeatureResource;
 use App\Http\Resources\Api\V1\TrackResource;
 use App\Models\Artist;
+use App\Models\Concerns\FullTextSearchable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -19,6 +20,7 @@ use Illuminate\Http\Response;
 class TrackController extends Controller
 {
     use PaginatesResults;
+    use FullTextSearchable;
 
     public function index(Request $request): AnonymousResourceCollection
     {
