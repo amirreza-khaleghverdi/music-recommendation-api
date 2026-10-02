@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FullTextSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +14,8 @@ class Track extends Model
 {
     /** @use HasFactory<\Database\Factories\TrackFactory> */
     use HasFactory;
+    use FullTextSearchable;
+
     protected $fillable = [
         'album_id',
         'title',

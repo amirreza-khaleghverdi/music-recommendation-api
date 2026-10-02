@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FullTextSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,6 +11,7 @@ class Artist extends Model
 {
     /** @use HasFactory<\Database\Factories\ArtistFactory> */
     use HasFactory;
+    use FullTextSearchable;
 
     protected $fillable = [
         'name',

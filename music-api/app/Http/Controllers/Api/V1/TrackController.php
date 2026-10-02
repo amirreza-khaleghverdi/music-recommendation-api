@@ -20,7 +20,6 @@ use Illuminate\Http\Response;
 class TrackController extends Controller
 {
     use PaginatesResults;
-    use FullTextSearchable;
 
     public function index(Request $request): AnonymousResourceCollection
     {

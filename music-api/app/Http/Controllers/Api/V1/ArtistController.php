@@ -19,7 +19,6 @@ use Illuminate\Http\Response;
 class ArtistController extends Controller
 {
     use PaginatesResults;
-    use FullTextSearchable;
 
     public function index(Request $request): AnonymousResourceCollection
     {

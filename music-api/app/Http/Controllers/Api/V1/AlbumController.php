@@ -19,7 +19,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class AlbumController extends Controller
 {
     use PaginatesResults;
-    use FullTextSearchable;
     
     public function index(Request $request): AnonymousResourceCollection
     {
