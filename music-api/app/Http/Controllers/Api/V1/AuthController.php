@@ -23,7 +23,7 @@ class AuthController extends Controller
         $request->setUserResolver(fn () => $user);
 
         return (new UserResource($user))
-            ->additional(['meta' => $token])
+            ->additional(['meta' => ['token' => $token]])
             ->response()
             ->setStatusCode(Response::HTTP_CREATED);
     }

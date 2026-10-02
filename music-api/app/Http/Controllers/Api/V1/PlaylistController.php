@@ -10,6 +10,7 @@ use App\Models\Playlist;
 use App\Http\Requests\Api\V1\StorePlaylistRequest;
 use App\Http\Requests\Api\V1\UpdatePlaylistRequest;
 use App\Http\Resources\Api\V1\PlaylistResource;
+use App\Http\Resources\Api\V1\TrackResource;
 use App\Models\Track;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -48,12 +49,12 @@ class PlaylistController extends Controller
     public function tracks(Request $request, Playlist $playlist)
     {
         $tracks = $playlist->tracks()->paginate($this->perPage($request));
-        return PlaylistResource::collection($tracks);
+        return TrackResource::collection($tracks);
     }
 
     public function store(StorePlaylistRequest $request)
     {
-        $playlist = $request->user()->create($request->validated());
+        $playlist = $request->user()->playlists()->create($request->validated());
         return (new PlaylistResource($playlist))
         ->response()
         ->setStatusCode(Response::HTTP_CREATED);
@@ -61,7 +62,7 @@ class PlaylistController extends Controller
     
     public function update(UpdatePlaylistRequest $request, Playlist $playlist)
     {
-        $playlist->update($request->validated($request));
+        $playlist->update($request->validated());
         return new PlaylistResource($playlist);
     }
 
