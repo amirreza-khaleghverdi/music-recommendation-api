@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use app\Http\Controllers\Concerns\PaginatesResults;
+use App\Http\Controllers\Concerns\PaginatesResults;
 use App\Http\Controllers\Controller;
 use App\Models\Album;
 use App\Http\Requests\Api\V1\StoreAlbumRequest;
@@ -10,7 +10,6 @@ use App\Http\Requests\Api\V1\UpdateAlbumRequest;
 use App\Http\Resources\Api\V1\AlbumResource;
 use App\Http\Resources\Api\V1\ArtistResource;
 use App\Http\Resources\Api\V1\TrackResource;
-use App\Models\Concerns\FullTextSearchable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -38,12 +37,16 @@ class AlbumController extends Controller
 
     public function show(Album $album): AlbumResource
     {
-        return new AlbumResource($album->load('tracks'));
+        return new AlbumResource($album->load([
+            'tracks' => fn ($query) => $query->orderBy('disc_number')->orderBy('track_number'),
+            'artists'
+            ])
+        );
     }
 
     public function tracks(Request $request, Album $album): AnonymousResourceCollection
     {
-        $tracks = $album->tracks()->paginate($this->perPage($request));
+        $tracks = $album->tracks()->orderBy('disc_number')->orderBy('track_number')->paginate($this->perPage($request));
         return TrackResource::collection($tracks);
     }
 
