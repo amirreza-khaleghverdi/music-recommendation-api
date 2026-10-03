@@ -15,7 +15,7 @@ class SearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'q' => ['required', 'string', 'min:2']
+            'q' => ['required', 'string', 'min:2', 'max:100']
         ];
     }
 }

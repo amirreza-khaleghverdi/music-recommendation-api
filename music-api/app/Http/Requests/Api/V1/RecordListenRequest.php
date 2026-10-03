@@ -19,7 +19,7 @@ class RecordListenRequest extends FormRequest
         $hasContainer = in_array($contextType, $containedContexts, true);
 
         return [
-            'ms_played' => ['required', 'integer', 'min:0'],
+            'ms_played' => ['required', 'integer', 'min:0', 'max:' .($this->route('track')->duration_ms * 2)],
             'context_type' => [
                 'nullable',
                 Rule::in(['playlist', 'album', 'artist', 'search', 'radio', 'recommendation']),
