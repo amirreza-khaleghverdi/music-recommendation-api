@@ -142,8 +142,8 @@ Route::prefix('v1')
                 ->name('destroy');
 
                 Route::post('/{track}/listen', [ListenEventController::class, 'store'])
-                ->middleware(['auth:sanctum', 'throttle:60,1'])
-                ->name('tracks.listen');
+                ->middleware(['throttle:60,1'])
+                ->name('listen');
 
                 Route::post('/{track}/artists', 'attachArtist')
                 ->name('attach.artist');
@@ -187,7 +187,7 @@ Route::prefix('v1')
 
             Route::patch('/password', 'updatePassword')
             ->middleware('throttle:5,1')
-            ->name('Password.update');
+            ->name('password.update');
 
             Route::get('/liked-tracks', 'likedTracks')
             ->name('liked-tracks.index');
