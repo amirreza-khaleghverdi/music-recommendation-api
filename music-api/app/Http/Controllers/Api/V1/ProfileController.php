@@ -57,7 +57,7 @@ class ProfileController extends Controller
     public function likeTrack(Request $request, Track $track): Response
     {
         $request->user()->likedTracks()->syncWithoutDetaching([
-            $track->id => ['liked_at' => now()],
+            $track->id
         ]);
 
         return response()->noContent();
@@ -80,7 +80,7 @@ class ProfileController extends Controller
     public function followArtist(Request $request, Artist $artist): Response
     {
         $request->user()->followedArtists()->syncWithoutDetaching([
-            $artist->id => ['followed_at' => now()],
+            $artist->id
         ]);
 
         return response()->noContent();
