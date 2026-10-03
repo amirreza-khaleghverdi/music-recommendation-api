@@ -10,12 +10,13 @@ use App\Http\Resources\Api\V1\TrackResource;
 use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Track;
+use Illuminate\Http\JsonResponse;
 
 class SearchController extends Controller
 {
-    const LIMIT_PER_TYPE=10;
+    private const LIMIT_PER_TYPE=10;
 
-    public function __invoke(SearchRequest $request)
+    public function __invoke(SearchRequest $request): JsonResponse
     {
         $term = $request->validated('q');
 

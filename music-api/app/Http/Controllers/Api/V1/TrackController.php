@@ -11,7 +11,6 @@ use App\Http\Requests\Api\V1\UpdateTrackRequest;
 use App\Http\Resources\Api\V1\TrackAudioFeatureResource;
 use App\Http\Resources\Api\V1\TrackResource;
 use App\Models\Artist;
-use App\Models\Concerns\FullTextSearchable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -53,17 +52,18 @@ class TrackController extends Controller
 
     public function show(Track $track): TrackResource
     {
-        return new TrackResource($track->load(['album', 'artists', 'genres']));
+        return new TrackResource($track->loadCount('likes')->load(['album', 'artists', 'genres']));
     }
 
     public function audioFeatures(Track $track): TrackAudioFeatureResource
     {
+        $features = $track->audioFeatures();
         abort_unless(
-            $track->audioFeatures()->exists(),
+            $features === null,
             Response::HTTP_NOT_FOUND,
             'No audio features recorded for this track'
         );
-        return new TrackAudioFeatureResource($track->audioFeatures);
+        return new TrackAudioFeatureResource($features);
     }
 
     public function store(StoreTrackRequest $request): JsonResponse
