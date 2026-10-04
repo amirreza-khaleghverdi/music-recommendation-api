@@ -23,6 +23,7 @@ class TrackController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $tracks = Track::query()
+        ->withCount('likes')
         ->when(
             $request->filled('search'),
             fn ($query) => $query->search($request->string('search')->toString())
@@ -57,8 +58,8 @@ class TrackController extends Controller
 
     public function audioFeatures(Track $track): TrackAudioFeatureResource
     {
-        $features = $track->audioFeatures();
-        abort_unless(
+        $features = $track->audioFeatures;
+        abort_if(
             $features === null,
             Response::HTTP_NOT_FOUND,
             'No audio features recorded for this track'
