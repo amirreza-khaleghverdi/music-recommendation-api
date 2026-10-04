@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Concerns\PaginatesResults;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AddAlbumArtistRequest;
 use App\Models\Album;
 use App\Http\Requests\Api\V1\StoreAlbumRequest;
 use App\Http\Requests\Api\V1\UpdateAlbumRequest;
 use App\Http\Resources\Api\V1\AlbumResource;
 use App\Http\Resources\Api\V1\ArtistResource;
 use App\Http\Resources\Api\V1\TrackResource;
+use App\Models\Artist;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -73,6 +75,24 @@ class AlbumController extends Controller
     public function destroy(Album $album): Response
     {
         $album->delete();
+        return response()->noContent();
+    }
+
+    public function attachArtist(AddAlbumArtistRequest $request, Album $album)
+    {
+        $album->artists()->attach(
+            $request->validated('artist_id'),
+            ['role' => $request->validated('role')]
+        );
+
+        return (new AlbumResource($album->load('artists')))
+        ->response()
+        ->setStatusCode(Response::HTTP_CREATED);
+    }
+
+    public function detachArtist(Album $album, Artist $artist)
+    {
+        $album->artists()->detach($artist->id);
         return response()->noContent();
     }
 }
