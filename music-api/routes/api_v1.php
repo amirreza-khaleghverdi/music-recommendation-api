@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\ArtistController;
 use App\Http\Controllers\Api\V1\AlbumController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\GenreController;
+use App\Http\Controllers\Api\V1\ListenEventController;
 use App\Http\Controllers\Api\V1\PlaylistController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\SearchController;
@@ -15,7 +16,7 @@ use App\Http\Controllers\Api\V1\TrackController;
 Route::prefix('v1')
     ->name('api.v1.')
     ->group( function () {
-        
+
         //...auth...//
         Route::controller(AuthController::class)
         ->prefix('/auth')
@@ -44,7 +45,7 @@ Route::prefix('v1')
         ->prefix('/artists')
         ->name('artists.')
         ->group(function () {
-           
+
             Route::get('/', 'index')
             ->name('index');
 
@@ -55,16 +56,14 @@ Route::prefix('v1')
             ->name('albums');
 
             Route::get('/{artist}/tracks', 'tracks')
-            ->name('tracks'); 
+            ->name('tracks');
 
             Route::middleware('auth:sanctum')->group(function() {
 
                 Route::post('/', 'store')
-                ->middleware('can:create,App\Models\Artist')
                 ->name('store');
 
                 Route::patch('/{artist}', 'update')
-                ->middleware('can:update,artist')
                 ->name('update');
 
                 Route::delete('/{artist}', 'destroy')
@@ -94,11 +93,9 @@ Route::prefix('v1')
             Route::middleware('auth:sanctum')->group(function() {
 
                 Route::post('/', 'store')
-                ->middleware('can:create,App\Models\Album')
                 ->name('store');
 
                 Route::patch('/{album}', 'update')
-                ->middleware('can:update,album')
                 ->name('update');
 
                 Route::delete('/{album}', 'destroy')
@@ -106,7 +103,6 @@ Route::prefix('v1')
                 ->name('destroy');
 
                 Route::post('/{album}/artists', 'attachArtist')
-                ->middleware('can:update,album')
                 ->name('artist.attach');
 
                 Route::delete('/{album}/artists/{artist}', 'detachArtist')
@@ -134,12 +130,10 @@ Route::prefix('v1')
             Route::middleware('auth:sanctum')->group(function() {
 
                 Route::post('/', 'store')
-                ->middleware('can:create,App\Models\Track')
                 ->name('store');
 
 
                 Route::patch('/{track}', 'update')
-                ->middleware('can:update,track')
                 ->name('update');
 
 
@@ -147,12 +141,11 @@ Route::prefix('v1')
                 ->middleware('can:delete,track')
                 ->name('destroy');
 
-                Route::post('/{track}/listen', 'listen')
-                ->middleware('throttle:60,1')
+                Route::post('/{track}/listen', [ListenEventController::class, 'store'])
+                ->middleware(['throttle:60,1'])
                 ->name('listen');
 
                 Route::post('/{track}/artists', 'attachArtist')
-                ->middleware('can:update,track')
                 ->name('attach.artist');
 
                 Route::delete('/{track}/artists/{artist}', 'detachArtist')
@@ -194,7 +187,7 @@ Route::prefix('v1')
 
             Route::patch('/password', 'updatePassword')
             ->middleware('throttle:5,1')
-            ->name('Password.update');
+            ->name('password.update');
 
             Route::get('/liked-tracks', 'likedTracks')
             ->name('liked-tracks.index');
@@ -227,7 +220,7 @@ Route::prefix('v1')
         ->prefix('/playlists')
         ->name('playlists.')
         ->group(function() {
-    
+
             Route::get('/', 'index')
             ->middleware('can:viewAny,App\Models\Playlist')
             ->name('index');
@@ -243,11 +236,9 @@ Route::prefix('v1')
             Route::middleware('auth:sanctum')->group(function() {
 
                 Route::post('/', 'store')
-                ->middleware('can:create,App\Models\Playlist')
                 ->name('store');
 
                 Route::patch('/{playlist}', 'update')
-                ->middleware('can:update,playlist')
                 ->name('update');
 
                 Route::delete('/{playlist}', 'destroy')
@@ -255,7 +246,6 @@ Route::prefix('v1')
                 ->name('destroy');
 
                 Route::post('/{playlist}/tracks', 'addTrack')
-                ->middleware('can:update,playlist')
                 ->name('tracks.attach');
 
                 Route::delete('/{playlist}/tracks/{track}', 'removeTrack')
@@ -263,10 +253,9 @@ Route::prefix('v1')
                 ->name('tracks.detach');
 
                 Route::patch('/{playlist}/tracks/reorder', 'reorder')
-                ->middleware('can:update,playlist')
                 ->name('tracks.reorder');
             });
         });
 
-        Route::get('/search', SearchController::class)->name('search');
+        Route::get('/search', SearchController::class)->middleware('throttle:30,1')->name('search');
     });

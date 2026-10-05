@@ -2,66 +2,75 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Concerns\PaginatesResults;
 use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use App\Http\Requests\Api\V1\StoreArtistRequest;
 use App\Http\Requests\Api\V1\UpdateArtistRequest;
+use App\Http\Resources\Api\V1\AlbumResource;
+use App\Http\Resources\Api\V1\ArtistResource;
+use App\Http\Resources\Api\V1\TrackResource;
+use App\Models\Concerns\FullTextSearchable;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ArtistController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use PaginatesResults;
+
+    public function index(Request $request): AnonymousResourceCollection
     {
-        //
+        $artists = Artist::query()
+        ->when(
+            $request->filled('search'),
+            fn ($query) => $query->search($request->string('search')->toString())
+        )
+        ->when(
+            $request->filled('country_code'),
+            fn ($query) => $query->where('country_code', $request->string('country_code'))
+        )
+        ->paginate($this->perPage($request));
+
+        return ArtistResource::collection($artists);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(Artist $artist): ArtistResource
     {
-        //
+        return new ArtistResource($artist->load('albums'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreArtistRequest $request)
+    public function albums(Request $request, Artist $artist): AnonymousResourceCollection
     {
-        //
+        $albums = $artist->albums()->paginate($this->perPage($request));
+        return AlbumResource::collection($albums);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Artist $artist)
+    public function tracks(Request $request, Artist $artist): AnonymousResourceCollection
     {
-        //
+        $tracks = $artist->tracks()->paginate($this->perPage($request));
+        return TrackResource::collection($tracks);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Artist $artist)
+    public function store(StoreArtistRequest $request): JsonResponse
     {
-        //
+        $artist = Artist::create($request->validated());
+
+        return (new ArtistResource($artist))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateArtistRequest $request, Artist $artist)
+    public function update(UpdateArtistRequest $request, Artist $artist): ArtistResource
     {
-        //
+        $artist->update($request->validated());
+        return new ArtistResource($artist);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Artist $artist)
+    public function destroy(Artist $artist): Response
     {
-        //
+        $artist->delete();
+        return response()->noContent();
     }
 }

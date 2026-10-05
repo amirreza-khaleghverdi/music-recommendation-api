@@ -2,66 +2,106 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Concerns\PaginatesResults;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AddTrackArtistRequest;
 use App\Models\Track;
 use App\Http\Requests\Api\V1\StoreTrackRequest;
 use App\Http\Requests\Api\V1\UpdateTrackRequest;
+use App\Http\Resources\Api\V1\TrackAudioFeatureResource;
+use App\Http\Resources\Api\V1\TrackResource;
+use App\Models\Artist;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class TrackController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    use PaginatesResults;
+
+    public function index(Request $request): AnonymousResourceCollection
     {
-        //
+        $tracks = Track::query()
+        ->withCount('likes')
+        ->when(
+            $request->filled('search'),
+            fn ($query) => $query->search($request->string('search')->toString())
+        )
+        ->when(
+            $request->filled('genre'),
+            fn ($query) => $query->whereHas(
+                'genres',
+                fn ($query) => $query->where('genres.id', $request->integer('genre'))
+            )
+        )
+        ->when(
+            $request->filled('artist'),
+            fn ($query) => $query->whereHas(
+                'artists',
+                fn ($query) => $query->where('artists.id', $request->integer('artist'))
+            )
+        )
+        ->when(
+            $request->has('explicit'),
+            fn ($query) => $query->where('explicit', $request->boolean('explicit'))
+        )
+        ->paginate($this->perPage($request));
+
+        return TrackResource::collection($tracks);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(Track $track): TrackResource
     {
-        //
+        return new TrackResource($track->loadCount('likes')->load(['album', 'artists', 'genres']));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreTrackRequest $request)
+    public function audioFeatures(Track $track): TrackAudioFeatureResource
     {
-        //
+        $features = $track->audioFeatures;
+        abort_if(
+            $features === null,
+            Response::HTTP_NOT_FOUND,
+            'No audio features recorded for this track'
+        );
+        return new TrackAudioFeatureResource($features);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Track $track)
+    public function store(StoreTrackRequest $request): JsonResponse
     {
-        //
+        $track = Track::create($request->validated());
+        return (new TrackResource($track))
+        ->response()
+        ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Track $track)
+    public function update(UpdateTrackRequest $request, Track $track): TrackResource
     {
-        //
+        $track->update($request->validated());
+        return new TrackResource($track);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateTrackRequest $request, Track $track)
+    public function destroy(Track $track): Response
     {
-        //
+        $track->delete();
+        return response()->noContent();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Track $track)
+    public function attachArtist(AddTrackArtistRequest $request, Track $track): JsonResponse
     {
-        //
+        $track->artists()->attach(
+            $request->validated('artist_id'),
+            ['role' => $request->validated('role')]
+        );
+
+        return (new TrackResource($track->load('artists')))
+        ->response()
+        ->setStatusCode(Response::HTTP_CREATED);
+    }
+
+    public function detachArtist(Track $track, Artist $artist): Response
+    {
+        $track->artists()->detach($artist->id);
+        return response()->noContent();
     }
 }
