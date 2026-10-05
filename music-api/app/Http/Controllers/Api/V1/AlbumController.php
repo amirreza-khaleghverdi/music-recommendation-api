@@ -78,7 +78,7 @@ class AlbumController extends Controller
         return response()->noContent();
     }
 
-    public function attachArtist(AddAlbumArtistRequest $request, Album $album)
+    public function attachArtist(AddAlbumArtistRequest $request, Album $album): JsonResponse
     {
         $album->artists()->attach(
             $request->validated('artist_id'),
@@ -90,7 +90,7 @@ class AlbumController extends Controller
         ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function detachArtist(Album $album, Artist $artist)
+    public function detachArtist(Album $album, Artist $artist): Response
     {
         $album->artists()->detach($artist->id);
         return response()->noContent();
