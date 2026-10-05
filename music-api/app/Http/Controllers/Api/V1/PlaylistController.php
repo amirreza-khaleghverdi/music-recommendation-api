@@ -12,6 +12,7 @@ use App\Http\Requests\Api\V1\UpdatePlaylistRequest;
 use App\Http\Resources\Api\V1\PlaylistResource;
 use App\Http\Resources\Api\V1\TrackResource;
 use App\Models\Track;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -34,25 +35,26 @@ class PlaylistController extends Controller
         )
         ->when(
             $request->filled('search'),
-            fn ($query) => $query->where('title', 'ilike', '%' . $request->string('search') . '%')
+            fn ($query) => $query->where('title', 'ilike',
+            '%' . addcslashes($request->string('search')->toString(), '%_\\') . '%')
         )
         ->paginate($this->perPage($request));
 
         return PlaylistResource::collection($playlists);
     }
 
-    public function show(Playlist $playlist)
+    public function show(Playlist $playlist): PlaylistResource
     {
         return new PlaylistResource($playlist->load('user'));
     }
 
-    public function tracks(Request $request, Playlist $playlist)
+    public function tracks(Request $request, Playlist $playlist): AnonymousResourceCollection
     {
         $tracks = $playlist->tracks()->paginate($this->perPage($request));
         return TrackResource::collection($tracks);
     }
 
-    public function store(StorePlaylistRequest $request)
+    public function store(StorePlaylistRequest $request): JsonResponse
     {
         $playlist = $request->user()->playlists()->create($request->validated());
         return (new PlaylistResource($playlist))
@@ -60,38 +62,49 @@ class PlaylistController extends Controller
         ->setStatusCode(Response::HTTP_CREATED);
     }
     
-    public function update(UpdatePlaylistRequest $request, Playlist $playlist)
+    public function update(UpdatePlaylistRequest $request, Playlist $playlist): PlaylistResource
     {
         $playlist->update($request->validated());
         return new PlaylistResource($playlist);
     }
 
-    public function destroy(Playlist $playlist)
+    public function destroy(Playlist $playlist): Response
     {
         $playlist->delete();
         return response()->noContent();
     }
 
-    public function addTrack(AddPlaylistTrackRequest $request, Playlist $playlist)
+    public function addTrack(AddPlaylistTrackRequest $request, Playlist $playlist): Response
     {
-        $position = $request->validated('position') ?? $playlist->tracks()->count() + 1;
-        $playlist->tracks()->attach(
-            $request->validated('track_id'),
-            ['position' => $position]
-        );
+        DB::transaction(function () use ($request, $playlist) {
+            Playlist::whereKey($playlist->id)->lockForUpdate()->first();
 
-        return (new PlaylistResource($playlist->load('tracks')))
-        ->response()
-        ->setStatusCode(Response::HTTP_CREATED);
+            $end = (int) DB::table('playlist_track')
+                ->where('playlist_id', $playlist->id)
+                ->max('position') + 1;
+
+            $position = min($request->validated('position') ?? $end, $end);
+
+            DB::table('playlist_track')
+                ->where('playlist_id', $playlist->id)
+                ->where('position', '>=', $position)
+                ->increment('position');
+
+            $playlist->tracks()->attach($request->validated('track_id'), [
+                'position' => $position,
+            ]);
+        });
+
+        return response()->noContent();
     }
 
-    public function removeTrack(Playlist $playlist, Track $track)
+    public function removeTrack(Playlist $playlist, Track $track): Response
     {
         $playlist->tracks()->detach($track->id);
         return response()->noContent();
     }
 
-    public function reorder(ReorderPlaylistTracksRequest $request, Playlist $playlist)
+    public function reorder(ReorderPlaylistTracksRequest $request, Playlist $playlist): Response
     {
         DB::transaction(function () use ($request, $playlist) {
             foreach ($request->validated('track_ids') as $index => $trackId) {
